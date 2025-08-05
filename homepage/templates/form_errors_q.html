@@ -1,0 +1,28 @@
+<!-- 필드오류 -->
+{% if form.errors %}
+<div class="alert alert-danger mx-3 px-3" role="alert">
+    {% for field, errors in form.errors.items() %}
+    <div class="container">
+        <div class="row">
+            <div class="col-3 ps-2 my-1 fw-bold">
+                <strong>{{ form[field].label }}</strong>
+            </div>
+            <div class="col-9 p-0">
+                <ul class="m-1" style="list-style:disc">
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- flash 오류 -->
+{% for message in get_flashed_messages() %}
+<div class="alert alert-danger" role="alert">
+    {{ message }}
+</div>
+{% endfor %}

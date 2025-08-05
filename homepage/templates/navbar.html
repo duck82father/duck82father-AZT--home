@@ -1,0 +1,87 @@
+<nav class="navbar navbar-expand-lg navbar-light nav-gradient-background navbar-sticky" id="navbar">
+    <div class="container-fluid nav-gradient-background" id="navbar-container">
+
+        <a class="navbar-brand text-light fw-bold px-3 fs-3 nav-font nav-line-height"
+            href="{{ url_for('main.index') }}">아재개그&nbsp;120</a>
+
+        <!-- 화면너비가 작으면 navbar-collapse은 숨겨지고, navbar-toggle은 표시됨 -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        {% if g.user and not all_user_data %}
+        <div class="scores">
+            <div class="scores-text">
+                <h2>SCORES&nbsp;&nbsp;&nbsp;<b id="solvedCountNumber" class="scores-number">{{ solved_quiz_ids|length
+                        }}</b>&nbsp;/&nbsp;120</h2>
+            </div>
+            <div class="scores-circles">
+                {% for i in range(1, 4) %}
+                <ul class="circles">
+                    {% for j in range(40*(i-1)+1, 40*(i-1)+41) %}
+                        {% if j in solved_quiz_ids %}
+                        <li class="circle-solved" id="score{{ j }}"></li>
+                        {% else %}
+                        <li class="circle" id="score{{ j }}"></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 화면너비가 넓으면 navbar-collapse이 표시되고, navbar-toggle은 숨겨짐 -->
+
+        {% if g.user %}
+
+        <div class="collapse navbar-collapse justify-content-end px-2 fs-5" id="navbarSupportedContent"
+            style="flex-grow:0;">
+            <ul class="navbar-nav me-3">
+                <li class="nav-item me-3 nav-rank mobile-display-only">
+                    <p class="nav-link fw-bold text-warning">[ 맞춘 문제 ]&nbsp;120개&nbsp;중&nbsp;<b
+                            id="solvedCountNumberMenu" class="scores-number">{{ solved_quiz_ids|length }}</b>개</p>
+                </li>
+                {% if all_user_data %}
+                <li class="nav-item me-3 nav-rank mobile-display-none">
+                    <a class="nav-link text-nav" href="{{ url_for('status.show') }}"><b class="fw-bold">아재퀴즈</b></a>
+                </li>
+                {% endif %}
+                <!--
+                <li class="nav-item me-3 nav-rank">
+                    <a class="nav-link text-nav" href="{{ url_for('question._list') }}"><span
+                            class="fw-normal mobile-display-only">>&nbsp;&nbsp;</span><b class="fw-bold">자유게시판</b></a>
+                </li>
+                -->
+                <li class="nav-item me-3 nav-rank">
+                    <a class="nav-link text-nav" href="{{ url_for('rank.rank') }}"><span
+                            class="fw-normal mobile-display-only">>&nbsp;&nbsp;</span><b class="fw-bold">순위표</b></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-nav" href="{{ url_for('auth.logout') }}"><span
+                            class="fw-normal mobile-display-only">>&nbsp;&nbsp;</span><b class="fw-bold">{{
+                            g.user.username }}</b>님 (로그아웃)</a>
+                </li>
+            </ul>
+            {% else %}
+            <div class="collapse navbar-collapse justify-content-end px-2 fs-5" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item me-3">
+                        <a class="nav-link text-nav" href="{{ url_for('auth.signup') }}"><span
+                                class="mobile-display-none">/&nbsp;&nbsp;</span>
+                            <span class="fw-normal mobile-display-only">>&nbsp;&nbsp;</span><b
+                                class="fw-bold">계정생성</b></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-nav" href="{{ url_for('auth.login') }}"><span
+                                class="mobile-display-none">/&nbsp;&nbsp;</span>
+                            <span class="fw-normal mobile-display-only">>&nbsp;&nbsp;</span><b
+                                class="fw-bold">로그인</b></a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+
+        </div>
+</nav>

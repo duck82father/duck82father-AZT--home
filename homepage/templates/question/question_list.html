@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='reset.min.css') }}" />
+
+<!-- 질문 목록 -->
+
+<div class="container qna-container whole_wrap pt-4">
+
+    <div class="row my-4">
+
+        <div class="col-6">
+            <a href="{{ url_for('question.create') }}" class="btn btn-primary nav-font fs-5">게시물 작성하기</a>
+        </div>
+
+        <div class="col-6">
+            <div class="input-group">
+                <input type="text" id="search_kw" class="form-control mobile-text-alttle-small" value="{{ kw or '' }}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary mobile-text-alttle-small" type="button" id="btn_search">찾기</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <table class="table table-height">
+        <thead>
+        <tr class="text-center table-dark">
+            <th>번호</th>
+            <th class="mobile-width-half-to-sixty">제목</th>
+            <th>글쓴이</th>
+            <th class="mobile-display-none">작성일시</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <!-- 공지사항 시작 : 게시물 id == '0' -->
+        {% if question_notice %}
+                <tr class="text-center">
+                    <td class="fw-bold">[공지]</td>
+                    <td class="text-start fw-bold">
+                        <a href="{{ url_for('question.detail', question_id=question_notice.id) }}">{{ question_notice.subject }}</a>
+                        {% if question_notice.answer_set|length > 0 %}
+                            <span class="text-danger small mx-2">{{ question_notice.answer_set|length }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ question_notice.user.username }}</td>
+                    <td class="mobile-display-none">{{ question_notice.create_date|datetime }}</td>
+                </tr>
+        {% endif %}
+        <!-- 공지사항 끝 -->
+
+
+        {% if question_list %}
+            {% for question in question_list.items %}
+                {% if question.id > 0 %}
+                    <tr class="text-center">
+                        <!-- 전체 게시물 수 - ((현재페이지 수 - 1) * 페이지당 게시물 수) - 인덱스번호 -->
+                        <td>{{ question_list.total - ((question_list.page-1) * question_list.per_page) - loop.index0 -1 }}</td>
+                        <td class="text-start">
+                            <a href="{{ url_for('question.detail', question_id=question.id) }}">{{ question.subject }}</a>
+                            {% if question.answer_set|length > 0 %}
+                                <span class="text-danger small mx-2">{{ question.answer_set|length }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ question.user.username }}</td>
+                        <td class="mobile-display-none">{{ question.create_date|datetime }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="3">질문이 없습니다.</td>
+        </tr>
+        {% endif %}
+
+        </tbody>
+
+    </table>
+
+    <!-- 페이징처리 시작 -->
+    <ul class="pagination justify-content-center mb-4">
+        <!-- 이전페이지 -->
+        {% if question_list.has_prev %}
+        <li class="page-item">
+            <a class="page-link mobile-text-alttle-small" data-page="{{ question_list.prev_num }}" href="javascript:void(0)">이전</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link mobile-text-alttle-small" tabindex="-1" aria-disabled="true" href="javascript:void(0)">이전</a>
+        </li>
+        {% endif %}
+        <!-- 페이지번호 -->
+        {% for page_num in question_list.iter_pages() %}
+        {% if page_num %}
+        {% if page_num != question_list.page %}
+        <li class="page-item">
+            <a class="page-link mobile-text-alttle-small" data-page="{{ page_num }}" href="javascript:void(0)">{{ page_num }}</a>
+        </li>
+        {% else %}
+        <li class="page-item active" aria-current="page">
+            <a class="page-link mobile-text-alttle-small" href="javascript:void(0)">{{ page_num }}</a>
+        </li>
+        {% endif %}
+        {% else %}
+        <li class="disabled">
+            <a class="page-link mobile-text-alttle-small" href="javascript:void(0)">...</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        <!-- 다음페이지 -->
+        {% if question_list.has_next %}
+        <li class="page-item">
+            <a class="page-link mobile-text-alttle-small" data-page="{{ question_list.next_num }}" href="javascript:void(0)">다음</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link mobile-text-alttle-small" tabindex="-1" aria-disabled="true" href="javascript:void(0)">다음</a>
+        </li>
+        {% endif %}
+    </ul>
+    <!-- 페이징처리 끝 -->
+
+</div>
+
+<form id="searchForm" method="get" action="{{ url_for('question._list') }}">
+    <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
+    <input type="hidden" id="page" name="page" value="{{ page }}">
+</form>
+
+{% endblock %}
+
+
+{% block script %}
+
+<script type='text/javascript'>
+
+const page_elements = document.getElementsByClassName("page-link mobile-text-alttle-small");
+Array.from(page_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        document.getElementById('page').value = this.dataset.page;
+        document.getElementById('searchForm').submit();
+    });
+});
+
+const btn_search = document.getElementById("btn_search");
+btn_search.addEventListener('click', function() {
+    document.getElementById('kw').value = document.getElementById('search_kw').value;
+    document.getElementById('page').value = 1;  // 검색버튼을 클릭할 경우 1페이지부터 조회한다.
+    document.getElementById('searchForm').submit();
+});
+</script>
+{% endblock %}

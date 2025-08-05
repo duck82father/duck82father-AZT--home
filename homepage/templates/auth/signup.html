@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container scroll-hide">
+    <div class="py-4 mobile-display-none"></div>
+    <div class="pt-5 pb-4 text-center">
+        <h1 class="introduce-font lh-base h1">
+            찾아와주셔서 <b class="fw-bold">감사</b>합니다
+        </h1>
+    </div>
+    <div class="col-4 mx-auto m-2 mobile-m-2 mb-5 signup-box">
+        <div class="text-center pt-4">
+            <h4 class="mb-3 nav-font h4">계정생성</h4>
+        </div>
+        <form method="post">
+            {{ form.csrf_token }}
+            {% include "form_errors.html" %}
+            <div class="mb-3 pt-4">
+                <label for="username" class="mb-2 fw-bold">이름 또는 닉네임 <b class="h6" style="font-size: 0.75rem;">/&nbsp;&nbsp;<span class="fw-bold" style="color:#1521c2;">한글아이디</span>를 추천합니다</b></label>
+                <input type="text" class="form-control mb-4" name="username" id="username"
+                    value="{{ form.username.data or '' }}">
+            </div>
+            <div class="mb-3">
+                <label for="password1" class="mb-2 fw-bold">비밀번호 <b class="h6" style="font-size: 0.75rem;">/&nbsp;&nbsp;기억하기 쉬운 간단한 번호로!</b></label></label>
+                <input type="password" class="form-control mb-4" name="password1" id="password1"
+                    value="{{ form.password1.data or '' }}">
+            </div>
+            <div class="mb-3">
+                <label for="password2" class="mb-2 fw-bold">비밀번호 확인 <b class="h6" style="font-size: 0.75rem;"></b></label></label>
+                <input type="password" class="form-control mb-4" name="password2" id="password2"
+                    value="{{ form.password2.data or '' }}">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="mb-2 fw-bold">이메일 <b class="h6" style="font-size: 0.75rem;">/&nbsp;&nbsp;가짜 계정도 괜찮아요!</b></label>
+                <input type="text" class="form-control mb-4" name="email" id="email"
+                    value="{{ form.email.data or '' }}">
+            </div>
+            <!-- <div><input type="text" name="comment" id="comment" value="{{ form.comment.data or '오늘도 행복한 하루 되세요' }}"></div> -->
+            <div class="text-center py-3">
+                <button type="submit" class="btn btn-secondary">생성하기</button>
+            </div>
+        </form>
+    </div>
+    <!-- <div class="py-4">&nbsp;</div> -->
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var changeNavBackground = document.getElementById("navbar");
+        changeNavBackground.setAttribute('class','navbar navbar-expand-lg navbar-light navbar-sticky nav-gradient-background-gray');
+        var changeNavContainerBackground = document.getElementById("navbar-container");
+        changeNavContainerBackground.setAttribute('class','container-fluid nav-gradient-background-gray');
+        var textNav = document.querySelectorAll('.text-nav');
+        textNav.forEach(element => {
+            console.log('melong');
+            element.setAttribute('style', 'color:#ccc!important;');
+        });
+    });
+</script>
+
+
+{% endblock %}

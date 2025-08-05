@@ -1,0 +1,71 @@
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <!-- Reset CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='reset.min.css') }}" />
+    <!-- homepage CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Bootstrap JS -->
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>  
+    <title>깨워라, 당신의 아재력!</title>
+    
+    <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-16.png') }}">
+    <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-32.png') }}">
+    <link type="image/png" sizes="96x96" rel="icon" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-96.png') }}">
+    <link type="image/png" sizes="120x120" rel="icon" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-120.png') }}">
+    <link rel="icon" type="image/png" sizes="72x72" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-72.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-96.png') }}">
+    <link rel="icon" type="image/png" sizes="144x144" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-144.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-192.png') }}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-512.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="57x57" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-57.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-60.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="72x72" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-72.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-76.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="114x114" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-114.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-120.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="144x144" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-144.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="152x152" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-152.png') }}">
+    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-180.png') }}">
+    <link color="#26E07F" rel="mask-icon" href="{{ url_for('static', filename='azgag-Icon_azgag-Icon-64.svg') }}">
+    <meta name="msapplication-square70x70logo" content="{{ url_for('static', filename='azgag-Icon_azgag-Icon-70.png') }}">
+    <meta name="msapplication-TileImage" content="{{ url_for('static', filename='azgag-Icon_azgag-Icon-144.png') }}">
+    <meta name="msapplication-square150x150logo" content="{{ url_for('static', filename='azgag-Icon_azgag-Icon-150.png') }}">
+    <meta name="msapplication-square310x310logo" content="{{ url_for('static', filename='azgag-Icon_azgag-Icon-310.png') }}">
+    <meta name="msapplication-TileColor" content="#2900FF">
+    <meta name="application-name" content="AZ GAG 120">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://azgag.life">
+    <meta property="og:title" content="아재개그120">
+    <meta property="og:image" content="{{ url_for('static', filename='azgag-thumbnail-kakao.png') }}">
+    <meta property="og:description" content="깨워라, 당신의 아재력!">
+    <meta property="og:site_name" content="아재개그120">
+
+    <meta property="twitter:card" content="card">
+    <meta property="twitter:title" content="아재개그120">
+    <meta property="twitter:description" content="깨워라, 당신의 아재력!">
+    <meta property="twitter:image" content="{{ url_for('static', filename='azgag-thumbnail-twitter.png') }}">
+
+
+</head>
+<body id="body">
+
+<!-- 네비게이션바 -->
+{% include "navbar.html" %}
+
+<!-- 기본 템플릿 안에 삽입될 내용 Start -->
+{% block content %}
+{% endblock %}
+<!-- 기본 템플릿 안에 삽입될 내용 End -->
+
+<!-- 자바스크립트 Start -->
+{% block script %}
+{% endblock %}
+<!-- 자바스크립트 End -->
+
+</body>
+</html>

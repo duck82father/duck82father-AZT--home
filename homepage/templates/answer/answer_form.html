@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='reset.min.css') }}" />
+
+<!-- 질문 등록 -->
+<div class="container qna-container my-5">
+    <h3 class="h3 fw-bold m-3 border-bottom pb-2 nav-font">답변 작성</h3>
+
+    <!--form 태그에 action 속성을 지정하지 않으면 현재 페이지의 URL이 디폴트 action으로 설정된다.-->
+    <form method="post" class="my-4">
+        
+        {{ form.csrf_token }}
+        <!-- 오류표시 Start -->
+        {% include 'form_errors_q.html' %}
+        <!-- 오류표시 End -->
+
+        <div class="mb-3">
+            <label class="mx-3 mt-3 fw-bold" for="content">내용</label>
+            <div class="mx-3 mt-3">
+                <textarea class="form-control" name="content" id="content" rows="12">{{ form.content.data or '' }}</textarea>
+            </div>
+        </div>
+        
+        <div class="mx-3 mt-3 btn-primary nav-font fs-5">
+            <button type="submit" class="btn btn-primary" style="float: right;">저장하기</button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

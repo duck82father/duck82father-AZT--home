@@ -1,0 +1,466 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='reset.min.css') }}" />
+<div class="container-fruid whole_wrap" id="whole_wrap_div">
+    <div class="row">
+
+        <div class="col-sm-7 quiz_wrap">
+            <div class="d-flex flex-wrap justify-content-center align-items-start mx-3 my-4 p-3 mobile-quiz">
+                <div class="my-1 quizBoxSelect mobile-display-only" id="">
+                    <div class="col-10 card azcard m-3 invisible" style="height: 0.1rem;">
+                    </div>
+                </div>
+                {% for quiz in quizs %}
+                <div class="my-1 quizBoxSelect" id="{{ loop.index }}">
+                    <div class="col-10 card azcard m-3" id="quizbox{{ loop.index }}">
+                        {% if quiz.id in solved_quiz_ids %}
+                        <div class="card-body text-quiz quizsuccess-top">
+                            <h5 class="card-title fs-5 text fw-bold lh-base quizsuccess-text"
+                                style="word-break:keep-all" id="quiz{{ quiz.id }}">{{ quiz.quiz }}</h5>
+                            <p class="card-text"></p>
+                        </div>
+                        <div class="container card-footer quizsuccess">
+                            <div class="row">
+                                <span class="col-5 p-2 fs-6 fw-bold quizsuccess-number">No. {{ quiz.id }}</span>
+                                <span class="col-7 text-end p-2 text-light fw-bold">
+                                    {{ quiz.answer }}
+                                </span>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="card-body text-quiz" id="quizCardBody{{ quiz.id }}">
+                            <h5 class="card-title fs-5 text fw-bold lh-base" style="word-break: keep-all"
+                                id="quiz{{ quiz.id }}">{{ quiz.quiz }}</h5>
+                            <p class="card-text"></p>
+                        </div>
+                        <div class="container card-footer" id="unSolvedDiv{{ quiz.id }}">
+                            <div class="row">
+                                <span class="col-5 p-2 fs-6" id="unSolvedSpanQuizId{{ quiz.id }}">No. {{quiz.id}}</span>
+                                <span class="col-7 text-end p-2 text-black-50" id="unSolvedSpan{{ quiz.id }}">
+                                    도전 가능
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="my-1 quizBoxSelect" id="">
+                    <div class="card azcard invisible" style="height: 0.1rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 chat_wrap">
+            <div class="chat">
+                <div class="inner mobile-display-none">
+                    <!-- 대화 아이템이 동적으로 추가될 공간 -->
+                </div>
+                <div class="mobile-input-text">
+                    <p class="text-black-50 nav-font h5" style="text-align: center; padding-top: 25px;">정답 입력창</p><br>
+                </div>
+                <button class="mobile-display-only h5 p-4 chatbotbutton" id="hint-button">초성 힌트</button>
+                <input type="text" class="mymsg h5 p-4 chatbotinput" id="inputPlaceHolder" placeholder="내용 입력 후 엔터를 누르세요">
+                <div class="text-center mobile-display-none">
+                    <p class="footer-text">문제를&nbsp;풀고&nbsp;싶다면
+                        <b class="fw-bold text-quiz">번호 [1 ~ 120번]</b>를<b class="mobile-show"><br></b><b
+                            class="mobile-avoid">&nbsp;&nbsp;/&nbsp;&nbsp;</b>어려울 땐
+                        <b class="fw-bold text-quiz">[힌트]</b>라고 입력해&nbsp;주세요👍
+                    </p><br>
+                    <p class="text-black-50 mt-3 mobile-display-none">Copyrightⓒ 2024 duck82father All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+
+        {% if g.user and not all_user_data %}
+        <div class="mobile-scores">
+            <p class="nav-font h5" style="text-align: center; margin-bottom:0px; padding-top: 25px; color:#757DCC;">문제 선택 하기</p>
+        </div>
+        <div class="mobile-scores">
+            <div class="scores-circles">
+                {% for i in range(1, 9) %}
+                    <ul class="circles">
+                        {% for j in range((15*(i-1))+1,(15*(i-1))+16) %}
+                            {% if j in solved_quiz_ids %}
+                            <li class="circle-solved all-circle" id="{{ j }}circle"></li>
+                            {% else %}
+                            <li class="circle all-circle" id="{{ j }}circle"></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="mobile-scores">
+            <p class="text-black-50 mobile-display-only" style="font-size: 0.75rem!important; text-align: center; padding-top:10px; padding-bottom: 20px;">Copyrightⓒ 2024 duck82father All rights reserved.</p>
+        </div>
+        {% endif %}
+
+
+    </div>
+</div>
+
+<div class="toast-container position-fixed top-50 start-50 translate-middle-x">
+    <div id="liveToast" class="toast align-items-center text-bg-warning border-0 toast-size-up" role="alert"
+        aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="toastText">
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // 페이지 로드 후 실행되는 함수
+    document.addEventListener("DOMContentLoaded", function () {
+        var mymsgInput = document.querySelector('.mymsg');
+        var yourmsgInput = document.querySelector('.yourmsg');
+        var chatInner = document.querySelector('.chat_wrap .inner');
+        var hintButton = document.getElementById('hint-button');
+        var elementBoxGlobal = null;
+        var elementTextGlobal = null;
+        var elementCircle = null;
+        var quiznumber = 0;
+
+        // XMLHttpRequest 객체 생성
+        var xhr = new XMLHttpRequest();
+
+        mymsgInput.addEventListener('keypress', function (e) {
+
+            if (e.keyCode === 13 && this.value.length && quiznumber > 0) {
+                sendMessage(this.value, 'mymsg');
+
+                xhr.open('POST', 'api/endpoint', true);                    // 요청을 보낼 메서드 및 URL 설정
+                xhr.setRequestHeader('Content-Type', 'application/json');   // Content-Type 헤더 설정 (JSON 전송 시에는 필요)                             
+                xhr.onload = function () {                                   // 요청 완료 시의 콜백 함수 설정
+
+                    if (xhr.status === 200) {
+                        var result = JSON.parse(xhr.responseText).result;
+                        var resulttype = JSON.parse(xhr.responseText).resulttype;
+                        var answer = JSON.parse(xhr.responseText).answer;
+                        var solvedCount = JSON.parse(xhr.responseText).solvedCount;
+                        if (resulttype == 'quiz') {
+                            clearCheckBox();
+                            sendMessageQuiz(result, 'yourmsg');
+                            toScrollMoving(result);
+                            circle = document.getElementById(quiznumber+'circle');
+                            elementCircle = circle;
+                            circle.setAttribute('style', 'background-color:#fff494;box-shadow:0.5px 0.5px 3px #272b33;');
+                        } else if (resulttype == 'answer') {
+                            clearCheckBox();
+                            sendMessageAnswer(result, 'yourmsg');
+                            changeDivSpan(quiznumber, answer);
+                            addSolvedCountNumber();
+                            circle = document.getElementById(quiznumber+'circle');
+                            circle.setAttribute('class', 'circle-solved all-circle');
+                            goToFirstUnSolvedDiv();
+                            hintButton.setAttribute('style', 'background: #99FF99;');
+                            hintButton.innerHTML = result;
+                            console.log(solvedCount);
+                            if (solvedCount == 120) {
+                                const toastLiveExample = document.getElementById('liveToast')
+                                document.getElementById('toastText').innerHTML = '🌈 축하합니다! 모든 문제를 문제 맞추셨습니다! 🌈';
+                                const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+                                toastBootstrap.show();
+                            } else if (solvedCount % 10 == 0) {
+                                // alert('👏 축하합니다! 총 ' + solvedCount + '문제 맞추셨습니다! 👏');
+                                const toastLiveExample = document.getElementById('liveToast');
+                                document.getElementById('toastText').innerHTML = '💐 축하합니다! 총 ' + solvedCount + '문제 맞추셨습니다! 💐';
+                                const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+                                toastBootstrap.show();
+                            } else {
+                            };
+                        } else if (resulttype == 'alreadySolved') {
+                            hintButton.innerHTML = result;
+                            hintButton.setAttribute('style', 'background: #CCFFFF;');
+                            sendMessage(result, 'yourmsg');
+                        } else if (resulttype == 'hint') {
+                            hintButton.innerHTML = result;
+                            hintButton.setAttribute('style', 'background: #fff494;');
+                            sendMessage(result, 'yourmsg');
+                        } else {
+                            sendMessage(result, 'yourmsg');
+                            hintButton.innerHTML = result;
+                            hintButton.setAttribute('style', 'background: #FFCCCC;');
+                        };
+
+                    } else {
+                        console.error('Request failed. Status:', xhr.status);
+                    }
+                };
+                var data = { key: this.value, quiznumber: quiznumber };
+                console.log(data);                                          // 전송할 데이터                                
+                xhr.send(JSON.stringify(data));                             // 데이터를 JSON 문자열로 변환하여 전송
+
+                this.value = '';
+            }
+            else if (e.keyCode === 13 && this.value.length) {
+                sendMessage(this.value, 'mymsg');
+
+                xhr.open('POST', 'api/endpoint', true);                    // 요청을 보낼 메서드 및 URL 설정
+                xhr.setRequestHeader('Content-Type', 'application/json');  // Content-Type 헤더 설정 (JSON 전송 시에는 필요)                             
+                xhr.onload = function () {                                 // 요청 완료 시의 콜백 함수 설정
+
+                    if (xhr.status === 200) {
+                        var result = JSON.parse(xhr.responseText).result;  // 처음의 result 값은 문제 번호임
+                        var resulttype = JSON.parse(xhr.responseText).resulttype;
+                        var answer = JSON.parse(xhr.responseText).answer;
+                        var solvedCount = JSON.parse(xhr.responseText).solvedCount;
+                        if (resulttype == 'quiz') {
+                            clearCheckBox();
+                            sendMessageQuiz(result, 'yourmsg');
+                            toScrollMoving(result);
+                        } else if (resulttype == 'alreadySolved') {
+                            hintButton.innerHTML = result;
+                            hintButton.setAttribute('style', 'background: #CCFFFF;');
+                            sendMessage(result, 'yourmsg');
+                            quiznumber = 0
+                        } else {
+                            sendMessage(result, 'yourmsg');
+                        };
+                    } else {
+                        console.error('Request failed. Status:', xhr.status);
+                    }
+                };
+                var data = { key: this.value, quiznumber: quiznumber };            // 전송할 데이터                                
+                xhr.send(JSON.stringify(data));         // 데이터를 JSON 문자열로 변환하여 전송
+
+                this.value = '';
+            }
+        });
+
+
+        // 모바일 힌트 버튼
+        hintButton.addEventListener('click', function (e) {
+            console.log("hint : " + quiznumber);
+            if (quiznumber > 0) {
+                xhr.open('POST', 'api/endpoint', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onload = function () {
+
+                    if (xhr.status === 200) {
+                        var result = JSON.parse(xhr.responseText).result;
+                        hintButton.innerHTML = result;
+                        hintButton.setAttribute('style', 'background: #fff494;');
+                    } else {
+                        console.error('Request failed. Status:', xhr.status);
+                    }
+                };
+                var data = { key:'hint', quiznumber: quiznumber };
+                xhr.send(JSON.stringify(data));
+            }
+        });
+
+        var currentTime = function () {
+            var date = new Date();
+            var hh = date.getHours();
+            var mm = date.getMinutes();
+            var apm = hh > 12 ? "오후" : "오전";
+            var ct = apm + " " + hh + ":" + mm + "";
+            return ct;
+        };
+
+        function sendMessage(message, className) {
+            var newDiv = document.createElement('div');
+            newDiv.className = 'item ' + className;
+            newDiv.innerHTML = '<div class="box"><p class="msg h6">' + message + '</p><span class="time">' + currentTime() + '</span></div>';
+
+            chatInner.appendChild(newDiv);
+
+            var lastItem = chatInner.lastChild;
+            setTimeout(function () {
+                lastItem.classList.add("on");
+            }, 10);
+
+            var position = lastItem.offsetTop + chatInner.scrollTop;
+            chatInner.scrollTop = position;
+        }
+
+        function sendMessageAnswer(message, className) {
+            var newDiv = document.createElement('div');
+            newDiv.className = 'item ' + className;
+            newDiv.innerHTML = '<div class="box answerBox"><p class="msg h6 answerMsg">' + message + '</p><span class="time">' + currentTime() + '</span></div>';
+
+            chatInner.appendChild(newDiv);
+
+            var lastItem = chatInner.lastChild;
+            setTimeout(function () {
+                lastItem.classList.add("on");
+            }, 10);
+
+            var position = lastItem.offsetTop + chatInner.scrollTop;
+            chatInner.scrollTop = position;
+        }
+
+        function sendMessageAllClear(message, className) {
+            var newDiv = document.createElement('div');
+            newDiv.className = 'item ' + className;
+            newDiv.innerHTML = '<div class="box allClearBox"><p class="msg h6 allClearMsg">' + message + '</p><span class="time">' + currentTime() + '</span></div>';
+
+            chatInner.appendChild(newDiv);
+
+            var lastItem = chatInner.lastChild;
+            setTimeout(function () {
+                lastItem.classList.add("on");
+            }, 10);
+
+            var position = lastItem.offsetTop + chatInner.scrollTop;
+            chatInner.scrollTop = position;
+        }
+
+        function sendMessageQuiz(result, className) {
+            var newDiv = document.createElement('div');
+            newDiv.className = 'item ' + className;
+            const message = document.getElementById('quiz' + result).innerHTML;
+            newDiv.innerHTML = '<div class="box"><p class="msg h6"><b class="fw-bold">Q' + result + '. '
+                + message + '</b></p><span class="time">' + currentTime() + '</span></div>';
+
+            chatInner.appendChild(newDiv);
+
+            var lastItem = chatInner.lastChild;
+            setTimeout(function () {
+                lastItem.classList.add("on");
+            }, 10);
+
+            var position = lastItem.offsetTop + chatInner.scrollTop;
+            chatInner.scrollTop = position;
+        }
+
+        function clearCheckBox() {
+            if (elementBoxGlobal) {
+                elementBoxGlobal.setAttribute('class', 'col-10 card azcard m-3');
+                elementTextGlobal.setAttribute('style', 'word-break:keep-all;');
+            }
+            if (elementCircle) {
+                elementCircle.setAttribute('style','');
+            }
+        }
+
+        function toScrollMoving(result) {
+            quiznumber = result;
+            elementBox = document.getElementById('quizbox' + result);
+            elementText = document.getElementById('quiz' + result);
+            if (elementBox) {
+                elementBox.scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" })
+                elementBox.setAttribute('class', 'col-10 card azcard m-3 selected_quiz')
+                elementText.setAttribute('style', 'word-break:keep-all; color:#916e07;')
+            }
+            elementBoxGlobal = elementBox;
+            elementTextGlobal = elementText;
+            hintButton.innerHTML = '초성 힌트';
+            hintButton.setAttribute('style', '');
+        }
+
+        function changeDivSpan(quiznumber, answer) {
+            unSolvedSpan = document.getElementById('unSolvedSpan' + quiznumber);
+            unSolvedSpan.setAttribute('class', 'col-7 text-end p-2 text-light fw-bold');
+            unSolvedSpan.setAttribute('id', '');
+            
+            unSolvedDiv = document.getElementById('unSolvedDiv' + quiznumber);
+            unSolvedDiv.setAttribute('class', 'container card-footer quizsuccess');
+            unSolvedDiv.setAttribute('id', '');
+
+            unSolvedSpanQuizId = document.getElementById('unSolvedSpanQuizId' + quiznumber);
+            unSolvedSpanQuizId.setAttribute('class', 'col-5 p-2 fs-6 fw-bold quizsuccess-number');
+            unSolvedSpanQuizId.setAttribute('id', '');
+
+            quizCardBody = document.getElementById('quizCardBody' + quiznumber);
+            quizCardBody.setAttribute('class', 'card-body text-quiz quizsuccess-top');
+
+            quiz = document.getElementById('quiz' + quiznumber);
+            quiz.setAttribute('class', 'card-title fs-5 text fw-bold lh-base quizsuccess-text');
+
+            score = document.getElementById('score' + quiznumber);
+            score.setAttribute('class', 'circle-solved');
+
+            unSolvedSpan.innerHTML = answer;
+        }
+
+        function addSolvedCountNumber() {
+            solvedCountNumber = document.getElementById('solvedCountNumber').innerHTML;
+            document.getElementById('solvedCountNumber').innerHTML = Number(solvedCountNumber) + 1;
+            solvedCountNumberMenu = document.getElementById('solvedCountNumberMenu').innerHTML;
+            document.getElementById('solvedCountNumberMenu').innerHTML = Number(solvedCountNumberMenu) + 1;
+        }
+
+        var quizboxAll = document.querySelectorAll('.quizBoxSelect');
+
+        quizboxAll.forEach(function (quizbox) {
+            quizbox.addEventListener('click', function () {
+                clearCheckBox();
+                quiznumber = this.id;
+                sendMessageQuiz(this.id, 'yourmsg');
+                toScrollMoving(this.id);
+                circle = document.getElementById(this.id+'circle');
+                elementCircle = circle;
+                circle.setAttribute('style', 'background-color:#fff494;box-shadow:0.5px 0.5px 3px #272b33;');
+            });
+        });
+
+        var circleAll = document.querySelectorAll('.all-circle');
+
+        circleAll.forEach(function (circle) {
+            circle.addEventListener('click', function () {
+                clearCheckBox();
+                circleId = this.id;
+                circleId = circleId.substring(0, circleId.indexOf('c'));
+                toScrollMoving(circleId);
+                elementCircle = this;
+                this.setAttribute('style', 'background-color:#fff494;box-shadow:0.5px 0.5px 3px #272b33;');
+            });
+        });
+
+
+        function goToFirstUnSolvedDiv() {
+            // id가 'unSolvedDiv*'인 모든 div 요소를 찾습니다.
+            const unSolvedDivs = document.querySelectorAll("div[id^='unSolvedDiv']");
+
+            if (unSolvedDivs.length > 0) {
+
+                // 가장 작은 id를 가진 div 요소를 반환합니다.
+                const firstUnSolvedDiv = unSolvedDivs[0];
+
+                // 가장 작은 id를 가진 div 요소를 스크롤합니다.
+                firstUnSolvedDiv.scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+
+                const firstResult = firstUnSolvedDiv.id.substring(11);
+                sendMessageQuiz(firstResult, 'yourmsg');
+                toScrollMoving(firstResult);
+                quiznumber = firstResult;
+            } else {
+                const firstQuiz = document.getElementById('quiz1');
+                firstQuiz.scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+                sendMessageAllClear('축하합니다💐<br>모든 문제를 완료하셨어요<br>🧡 💛 💚 💙 💜 🤎 🤍', 'yourmsg');
+                
+                hintButton.setAttribute('style', 'background: #ffc548;font-weight: 900;');
+                hintButton.innerHTML = '모든문제<br>완료💐';
+            };
+            
+        }
+
+        const pageWidth = document.documentElement.scrollWidth;
+        if (pageWidth < 1000) {
+            inputPlaceHolder = document.getElementById('inputPlaceHolder');
+            inputPlaceHolder.setAttribute('placeholder','답변 입력');
+        }
+
+        inputPlaceHolder.addEventListener('click', function(){
+            if(!hintButton.getAttribute('style')){
+                hintButton.innerHTML = '초성 힌트';
+                hintButton.setAttribute('style', '');
+            };
+        });
+
+        sendMessage('<b class="fw-bold">{{ g.user.username }}</b>님 환영합니다!🖐️', 'yourmsg')
+        sendMessage('<b class="fw-bold">아재퀴즈 문제</b>를 선택하세요<br>[ 입력 : 1 ~ 120번 ]', 'yourmsg')
+        goToFirstUnSolvedDiv()
+
+    });
+
+</script>
+
+{% endblock %}

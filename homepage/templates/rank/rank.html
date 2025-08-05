@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='reset.min.css') }}" />
+<div class="container-fruid">
+    <div class="row">
+        <div class="col-lg-4 ranking_comment_wrap bg-primary">
+            <div class="d-flex flex-wrap justify-content-center align-items-start mx-3 my-4 p-3">
+                <div class="container-fruid ms-2">
+                    <div class="mx-2 text-center ranking_comment">
+                        {% if solved_quiz_ids == [] %}
+                            <h1 class="rank-text-user">현재&nbsp;&nbsp;<b class="text-white text-opacity-75">{{
+                                    g.user.username }}</b>&nbsp;&nbsp;님은</h1>
+                            <h1 class="rank-text-user">풀어낸 퀴즈가 없습니다.</h1>
+                        {% else %}
+                            <h1 class="rank-text-user">현재&nbsp;&nbsp;<b class="text-white text-opacity-75">{{
+                                    g.user.username }}</b>&nbsp;&nbsp;님의 순위는</h1>
+                            <h1 class="rank-text-user"><b class="rank-number-user">
+                                    {% for user in all_user_data %}{% if user.id == g.user.id %}{{ loop.index }}{% endif
+                                    %}{% endfor %}</b>위 입니다.</h1>
+                        {% endif %}
+                    </div>
+
+                    <div class="rank-scores-box">
+                        <div class="">
+                            {% for i in range(1, 9)%}
+                            <ul class="circles">
+                                {% for j in range((15*(i-1))+1,(15*(i-1))+16) %}
+                                {% if j in solved_quiz_ids %}
+                                <li class="rank-circle-solved" id="score{{ j }}"></li>
+                                {% else %}
+                                <li class="rank-circle" id="score{{ j }}"></li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center rank-scores-text">
+                            <h2>SCORES&nbsp;&nbsp;&nbsp;<b class="rank-scores-number">{{
+                                    solved_quiz_ids|length }}</b>&nbsp;/&nbsp;120</h2>
+                        </div>
+                    </div>
+
+                    <div class="rank-input-box">
+                        <form class="row g-3" method="POST" action=""
+                            style="margin-bottom : calc(-1 * var(--bs-gutter-y));">
+                            {{ form.csrf_token }}
+                            <div class="col-auto" style="width:72%;">
+                                <!-- <label for="comment" class="form-label">인사말을 남겨주세요!</label> -->
+                                <input class="form-control" type="text" id="comment" name="comment"
+                                    value="{{ form.comment.data or '' }}" placeholder="메시지를 남겨주세요(최대 30자)">
+                            </div>
+                            <div class="col-auto" style="width:28%;">
+                                <button type="submit" id="messageBtn" class="btn btn-primary mb-3">제출하기</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <p class="text-center text-opacity-75 mobile-display-only fs-3" style="color:#f3d514;"><br>▼</p>
+            </div>
+        </div>
+
+        <div class="col-sm-8 ranking_wrap bg-light">
+            <div class="d-flex flex-wrap justify-content-center align-items-start mx-3 my-4 p-3 ranking_wrap_inside">
+                <div class="container ranking_container">
+                    <div class="mx-3 my-4 text-center">
+                        <h1 class="rank-text">순 위 표</h1>
+                    </div>
+                    {% for user in all_user_data %}
+                    <div class="row ranking_individual">
+                        <div class="btn-group btn-group-lg rank-group" role="group" aria-label="Large button group">
+                            {% if loop.index == 1 %}
+                                <button type="button" class="col-1 btn btn-primary rank-1st-number mobile-rank-font" disabled>{{ loop.index }}<span class="mobile-display-only">등<br><b class="fw-bold">{{user.username}}</b></span></button>
+                                <button type="button" class="col-2 btn btn-primary rank-1st-content mobile-rank-font mobile-display-none" disabled><b class="fw-bold">{{user.username}}</b></button>
+                                <button type="button" class="col-8 btn btn-primary rank-1st-content mobile-rank-font" disabled>{{user.comment}}</button>
+                                <button type="button" class="col-2 btn btn-primary rank-1st-content mobile-rank-font" disabled><b class="fw-bold">{{user.quiz_id_count}}</b>
+                                    <span class="mobile-display-none"> / 120</span>
+                                    <span class="mobile-display-only">개<br>클리어</span>
+                                </button>
+                            {% else %}
+                                <button type="button" class="col-1 btn btn-primary rank-nth-number mobile-rank-font" disabled>{{loop.index }}<span class="mobile-display-only">등<br><b class="fw-bold">{{user.username}}</b></span></span></button>
+                                <button type="button" class="col-2 btn btn-outline-primary rank-nth-content mobile-rank-font mobile-display-none" disabled><b class="fw-bold">{{user.username}}</b></button>
+                                <button type="button" class="col-8 btn btn-outline-primary rank-nth-content mobile-rank-font" disabled>{{user.comment}}</button>
+                                <button type="button" class="col-2 btn btn-outline-primary rank-nth-content mobile-rank-font" disabled><b class="fw-bold">{{user.quiz_id_count}}</b>
+                                    <span class="mobile-display-none"> / 120</span>
+                                    <span class="mobile-display-only">개<br>클리어</span>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if form.errors %}
+    {% for field, errors in form.errors.items() %}
+    {% for error in errors %}
+    <script>
+        alert('{{ error }}');
+    </script>
+    {% endfor %}
+    {% endfor %}
+    {% endif %}
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        
+        messageBtn = document.getElementById('messageBtn');
+        messageBtn.addEventListener('click', function () {
+                alert('메시지를 변경합니다.');
+        });
+    })
+</script>
+
+
+{% endblock %}
